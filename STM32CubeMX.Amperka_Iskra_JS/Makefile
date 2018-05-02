@@ -43,7 +43,7 @@ Application/User
 PERIFLIB_PATH = 
 
 # Build path
-BUILD_DIR = build
+BUILD_DIR = Build
 
 ######################################
 # source
@@ -95,7 +95,7 @@ PERIFLIB_SOURCES =
 #######################################
 # binaries
 #######################################
-BINPATH = 
+BINPATH = $(HOME)/opt/gcc-arm-none-eabi/bin
 PREFIX = arm-none-eabi-
 CC = $(BINPATH)/$(PREFIX)gcc
 AS = $(BINPATH)/$(PREFIX)gcc -x assembler-with-cpp
@@ -201,6 +201,13 @@ $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)
 	
 $(BUILD_DIR):
 	mkdir $@		
+
+#######################################
+# flash the application
+#######################################
+flash:
+	st-flash write $(BUILD_DIR)/$(TARGET).bin 0x8000000
+
 
 #######################################
 # clean up

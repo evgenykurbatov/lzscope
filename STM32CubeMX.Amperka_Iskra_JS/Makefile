@@ -80,6 +80,9 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
 Src/usb_device.c \
 Src/usbd_conf.c
+# Additional C sources
+C_SOURCES += \
+Src/workers.c
 
 # ASM sources
 ASM_SOURCES =  \

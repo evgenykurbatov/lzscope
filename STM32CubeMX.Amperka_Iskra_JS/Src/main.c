@@ -52,6 +52,9 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+  
+#include "ringbuffer.h"
+#include "workers.h"
 
 /* USER CODE END Includes */
 
@@ -59,6 +62,10 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+
+GPIO_InitTypeDef GPIO_InitStruct;
+
+extern RingBufferTypeDef RxRingBuffer;
 
 /* USER CODE END PV */
 
@@ -103,15 +110,37 @@ int main(void)
 
   /* USER CODE BEGIN 2 */
 
+  /* Initialize a BUSY led. */
+  GPIO_InitStruct.Pin = GPIO_PIN_7;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  RingBufferTypeDef tmpRingBuf;
+
   while (1)
   {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
+
+    tmpRingBuf = RxRingBuffer;
+    if (RingBuffer_IsEmpty(&tmpRingBuf) == false)
+    {
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+
+      Worker_ExecuteCommand(&tmpRingBuf);
+
+      RingBuffer_Reset(&RxRingBuffer);
+
+      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+    }
 
   }
   /* USER CODE END 3 */

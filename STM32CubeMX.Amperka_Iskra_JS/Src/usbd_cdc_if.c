@@ -49,6 +49,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "usbd_cdc_if.h"
 /* USER CODE BEGIN INCLUDE */
+#include "ringbuffer.h"
 /* USER CODE END INCLUDE */
 
 /** @addtogroup STM32_USB_OTG_DEVICE_LIBRARY
@@ -104,6 +105,8 @@ uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+RingBufferTypeDef RxRingBuffer;
+uint8_t RxRingBufferArray[RX_RING_BUFFER_DATA_SIZE];
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -157,6 +160,10 @@ static int8_t CDC_Init_FS(void)
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceFS, UserTxBufferFS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, UserRxBufferFS);
+
+  /* Set ring buffer */
+  RingBuffer_Init(&RxRingBuffer, RxRingBufferArray, RX_RING_BUFFER_DATA_SIZE);
+
   return (USBD_OK);
   /* USER CODE END 3 */ 
 }
@@ -266,6 +273,11 @@ static int8_t CDC_Control_FS  (uint8_t cmd, uint8_t* pbuf, uint16_t length)
 static int8_t CDC_Receive_FS (uint8_t* Buf, uint32_t *Len)
 {
   /* USER CODE BEGIN 6 */
+  /* Insert incoming data into the ring buffer */
+  for (uint32_t i=0; i<*Len; i++)
+    RingBuffer_Insert(&RxRingBuffer, Buf[i]);
+
+  /* Restart the receive process */
   USBD_CDC_SetRxBuffer(&hUsbDeviceFS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceFS);
   return (USBD_OK);

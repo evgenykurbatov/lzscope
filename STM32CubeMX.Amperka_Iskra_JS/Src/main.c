@@ -48,6 +48,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "stm32f4xx_ll_usb.h"
 #include "usb_device.h"
 #include "gpio.h"
 
@@ -133,6 +134,10 @@ int main(void)
     tmpRingBuf = RxRingBuffer;
     if (RingBuffer_IsEmpty(&tmpRingBuf) == false)
     {
+      /* See stm32f4xx_ll_usb.c */
+      PCD_HandleTypeDef *hpcd = hUsbDeviceFS.pData;
+      USB_FlushTxFifo(hpcd->Instance, 0x10U);
+      
       HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
 
       Worker_ExecuteCommand(&tmpRingBuf);

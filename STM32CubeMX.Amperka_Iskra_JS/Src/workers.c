@@ -7,6 +7,7 @@
   */
 
 #include "usbd_cdc_if.h"
+#include "adc.h"
 
 #include "main.h"
 #include "ringbuffer.h"
@@ -81,13 +82,11 @@ void Worker_ExecuteCommand(RingBufferTypeDef *RingBuf)
     Worker_ExecuteCommand_STATUS();
     return;
   }
-  /*
-  if (!strcasecmp(CmdName, "GPIO"))
+  if (!strcasecmp(CmdName, "ADC"))
   {
-    Worker_ExecuteCommand_GPIO();
+    Worker_ExecuteCommand_ADC();
     return;
   }
-  */
 }
 
 
@@ -96,4 +95,23 @@ void Worker_ExecuteCommand_STATUS(void)
 {
   Transmit("STATUS\n", 7);
   Transmit("OK\n", 3);
+}
+
+
+
+void Worker_ExecuteCommand_ADC(void)
+{
+  DMABuf.u16[0] = 0;
+
+  /* Measure */
+  HAL_ADC_Start(&hadc1);
+  HAL_ADC_PollForConversion(&hadc1, 100);
+  DMABuf.u16[0] = HAL_ADC_GetValue(&hadc1);
+  HAL_ADC_Stop(&hadc1);
+
+  /* Transfer */
+  Transmit("ADC\n", 4);
+  char TxBuf[CMD_BUFFER_SIZE];
+  sprintf(TxBuf, "%04x\n", DMABuf.u16[0]);
+  Transmit(TxBuf, 5);
 }

@@ -19,5 +19,6 @@ uint8_t Transmit(char *, uint16_t);
 
 void Worker_ExecuteCommand(RingBufferTypeDef *);
 void Worker_ExecuteCommand_STATUS(void);
+void Worker_ExecuteCommand_ADC(void);
 
 #endif /* __WORKERS_H */

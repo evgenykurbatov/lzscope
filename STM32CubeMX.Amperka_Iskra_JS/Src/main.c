@@ -48,12 +48,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_ll_usb.h"
+#include "adc.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-  
+
+#include "stm32f4xx_ll_usb.h"
 #include "ringbuffer.h"
 #include "workers.h"
 
@@ -108,6 +109,7 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USB_DEVICE_Init();
+  MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
 

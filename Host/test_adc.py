@@ -1,14 +1,17 @@
+# -*- coding: utf-8 -*-
 
+from __future__ import print_function
 import time
 import serial
+import numpy as np
 
 
 
 s = serial.Serial('/dev/ttyACM0')
 
-N = 10
-for i in xrange(N):
+for i in xrange(5):
+    print("> ADC")
     s.write("ADC\0")
-    print(s.readline())
-    print(s.readline())
-    #time.sleep(0.5)
+    raw = s.read(4)
+    data = np.frombuffer(raw, np.dtype(np.uint16), count=1)
+    print("%04x" % data)

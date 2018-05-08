@@ -15,10 +15,12 @@
 
 
 
-uint8_t Transmit(char *, uint16_t);
+uint8_t Transmit(char*, uint16_t);
 
-void Worker_ExecuteCommand(RingBufferTypeDef *);
-void Worker_ExecuteCommand_STATUS(void);
-void Worker_ExecuteCommand_ADC(void);
+void Worker_ExecuteCommand_ADC(char*, char*, char*);
+
+void Worker_ExecuteCommand_ADCDMA(char*, char*, char*);
+void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef*);
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*);
 
 #endif /* __WORKERS_H */

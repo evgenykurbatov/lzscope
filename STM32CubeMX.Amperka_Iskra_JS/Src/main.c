@@ -49,12 +49,14 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "adc.h"
+#include "dma.h"
 #include "usb_device.h"
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
 
-#include "stm32f4xx_ll_usb.h"
+#include "usbd_cdc_if.h"
+//#include "stm32f4xx_ll_usb.h"
 #include "ringbuffer.h"
 #include "workers.h"
 
@@ -108,6 +110,7 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_USB_DEVICE_Init();
   MX_ADC1_Init();
 
@@ -125,7 +128,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  RingBufferTypeDef tmpRingBuf;
 
   while (1)
   {
@@ -133,22 +135,49 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
-    tmpRingBuf = RxRingBuffer;
-    if (RingBuffer_IsEmpty(&tmpRingBuf) == false)
+    if (RingBuffer_IsEmpty(&RxRingBuffer) == false)
     {
-      /* See stm32f4xx_ll_usb.c */
-      PCD_HandleTypeDef *hpcd = hUsbDeviceFS.pData;
-      USB_FlushTxFifo(hpcd->Instance, 0x10U);
-      
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_SET);
+      /*
+       * Parse command
+       */
 
-      Worker_ExecuteCommand(&tmpRingBuf);
+      char CmdBuffer[RX_RING_BUFFER_DATA_SIZE];
+      for (uint32_t i=0; i < RxRingBuffer.Length; i++)
+      {
+	CmdBuffer[i] = RingBuffer_Remove(&RxRingBuffer);
+	if (CmdBuffer[i] == '\0')
+	  break;
+      }
 
-      RingBuffer_Reset(&RxRingBuffer);
+      #define TOKEN_SIZE 16
+      char CmdName[TOKEN_SIZE] = "";
+      char CmdArg1[TOKEN_SIZE] = "";
+      char CmdArg2[TOKEN_SIZE] = "";
+      char CmdArg3[TOKEN_SIZE] = "";
+      int res = sscanf(CmdBuffer, "%s %s %s %s", CmdName, CmdArg1, CmdArg2, CmdArg3);
 
-      HAL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
+
+      /*
+       * Execute command
+       */
+
+      if (!strcasecmp(CmdName, "STATUS"))
+      {
+	Transmit("OK", 3);
+	continue;
+      }
+      if (!strcasecmp(CmdName, "ADC"))
+      {
+	Worker_ExecuteCommand_ADC(CmdArg1, CmdArg2, CmdArg3);
+	continue;
+      }
+      if (!strcasecmp(CmdName, "ADCDMA"))
+      {
+	Worker_ExecuteCommand_ADCDMA(CmdArg1, CmdArg2, CmdArg3);
+	continue;
+      }
+
     }
-
   }
   /* USER CODE END 3 */
 

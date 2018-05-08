@@ -8,7 +8,5 @@ import serial
 
 s = serial.Serial('/dev/ttyACM0')
 
-for i in xrange(5):
-    print("> STATUS")
-    s.write("STATUS\0")
-    print(s.read(3))
+while True:
+    print(s.readline())

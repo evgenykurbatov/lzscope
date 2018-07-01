@@ -15,10 +15,10 @@ s.write("STATUS\0")
 print(s.read(3))
 
 dtype = np.uint16
-len_block = 128
+len_block = 16
 dtype_size = dtype(0).itemsize
-print("> ADCDMA %d" % (2*len_block))
-s.write("ADCDMA %d\0" % (2*len_block))
+print("> ADCDMA %d" % len_block)
+s.write("ADCDMA %d\0" % len_block)
 for i in xrange(5):
     print("> GET")
     s.write("GET\0")

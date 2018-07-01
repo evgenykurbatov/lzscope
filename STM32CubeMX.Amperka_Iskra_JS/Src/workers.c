@@ -87,8 +87,8 @@ extern RingBufferTypeDef RxRingBuffer;
 volatile bool ADCDMA_DataIsReady;
 /* Pointer to the data to transmit */
 volatile char *ADCDMA_DataBuffer;
-/* Length of the transmitted data block in bytes */
-volatile uint32_t ADCDMA_DataLength;
+/* Length of the transmitted data block in uint16_t */
+uint32_t ADCDMA_DataBufferHalfLength;
 
 
 
@@ -98,14 +98,11 @@ void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
    * Init
    */
 
-  ADCDMA_DataIsReady == false;
+  ADCDMA_DataIsReady = false;
 
-  uint32_t DMABufferLength;
-  sscanf(CmdArg1, "%li", &DMABufferLength);
+  sscanf(CmdArg1, "%li", &ADCDMA_DataBufferHalfLength);
 
-  ADCDMA_DataLength = (DMABufferLength >> 1) * sizeof(uint16_t);
-
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) (DMABuffer.u16), DMABufferLength);
+  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) (DMABuffer.u16), 2*ADCDMA_DataBufferHalfLength);
 
 
   /*
@@ -125,9 +122,9 @@ void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
       char CmdName[TOKEN_SIZE];
       for (uint32_t i=0; i < TOKEN_SIZE; i++)
       {
-	CmdName[i] = RingBuffer_Remove(&RxRingBuffer);
-	if (CmdName[i] == '\0')
-	  break;
+        CmdName[i] = RingBuffer_Remove(&RxRingBuffer);
+        if (CmdName[i] == '\0')
+          break;
       }
 
 
@@ -137,19 +134,16 @@ void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
 
       if (!strcasecmp(CmdName, "GET"))
       {
-	while (ADCDMA_DataIsReady == false);
-	
-	Transmit((char *) ADCDMA_DataBuffer, ADCDMA_DataLength);
-
-	ADCDMA_DataIsReady == false;
-	continue;
+        while (ADCDMA_DataIsReady == false);
+        ADCDMA_DataIsReady = false;
+        Transmit((char *) ADCDMA_DataBuffer, ADCDMA_DataBufferHalfLength*sizeof(uint16_t));
+        continue;
       }
       if (!strcasecmp(CmdName, "STOP"))
       {
-	Transmit("OK", 3);
-
-	ADCDMA_DataIsReady == false;
-	break;
+        ADCDMA_DataIsReady = false;
+        Transmit("OK", 3);
+        break;
       }
 
     }
@@ -176,6 +170,6 @@ void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef *hadc)
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-  ADCDMA_DataBuffer = (char *) &(DMABuffer.u16[DMA_BUFFER_SIZE_HALF_U16]);
+  ADCDMA_DataBuffer = (char *) &(DMABuffer.u16[ADCDMA_DataBufferHalfLength]);
   ADCDMA_DataIsReady = true;
 }

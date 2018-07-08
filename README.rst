@@ -7,7 +7,10 @@ LzScope
 :Contact:
    evgeny.p.kurbatov at gmail dot com
 
-:Version: 0.0.0
+:Version: 0.1.0
+
+
+Git repository: https://bitbucket.org/evgenykurbatov/lzscope
 
 
 

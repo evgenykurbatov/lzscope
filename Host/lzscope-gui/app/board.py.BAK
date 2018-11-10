@@ -1,0 +1,84 @@
+# -*- coding: utf-8 -*-
+
+from __future__ import print_function
+import logging
+import serial
+import numpy as np
+
+
+
+class Board(object):
+    """
+    """
+
+    def __init__(self, *serial_args, **serial_kwargs):
+        self.serial_args = *serial_args
+        self.serial_kwargs = **serial_kwargs
+
+        self.cmd = None
+
+        self.logger = logging.getLogger('lzscope.board.Board')
+
+
+    def connect(self):
+        """
+        """
+
+        try:
+            self.serial = serial.Serial(*self.serial_args, **self.serial_kwargs)
+            self.serial.reset_input_buffer()
+            self.serial.reset_output_buffer()
+        except Exception as e:
+            self.logger.error(e)
+
+
+    def disconnect(self):
+        """
+        """
+
+        try:
+            self.serial.reset_input_buffer()
+            self.serial.reset_output_buffer()
+            self.serial.close()
+        except Exception as e:
+            self.logger.error(e)
+
+
+    def command(self, cmd):
+        """
+        """
+
+        self.cmd = cmd
+
+
+    def run(self):
+        """
+        """
+
+        while True:
+            if self.cmd is None:
+                continue
+
+
+
+s = serial.Serial('/dev/ttyACM0')
+
+print("> STATUS")
+s.write("STATUS\0")
+print(s.read(3))
+
+dtype = np.uint16
+len_block = 16
+dtype_size = dtype(0).itemsize
+print("> ADCDMA %d" % len_block)
+s.write("ADCDMA %d\0" % len_block)
+for i in xrange(5):
+    print("> GET")
+    s.write("GET\0")
+    raw = s.read(len_block*dtype_size)
+    block = np.frombuffer(raw, np.dtype(dtype), count=len_block)
+    line = "".join(("%04x " % _) for _ in block)
+    print(line)
+print("> STOP")
+s.write("STOP\0")
+print(s.read(3))

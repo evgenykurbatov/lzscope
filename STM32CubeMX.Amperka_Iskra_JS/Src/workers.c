@@ -139,7 +139,7 @@ void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
         Transmit((char *) ADCDMA_DataBuffer, ADCDMA_DataBufferHalfLength*sizeof(uint16_t));
         continue;
       }
-      if (!strcasecmp(CmdName, "STOP"))
+      if (!strcasecmp(CmdName, "RESET"))
       {
         ADCDMA_DataIsReady = false;
         Transmit("OK", 3);

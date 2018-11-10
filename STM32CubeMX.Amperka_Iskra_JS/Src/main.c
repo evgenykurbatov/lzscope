@@ -161,7 +161,7 @@ int main(void)
        * Execute command
        */
 
-      if (!strcasecmp(CmdName, "STATUS"))
+      if (!strcasecmp(CmdName, "RESET"))
       {
         Transmit("OK", 3);
         continue;

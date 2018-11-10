@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
 import logging
 
 import board
@@ -19,15 +18,17 @@ board = board.Board(port="/dev/ttyACM0")
 
 board.connect()
 
-#board.cmd_stop()
+print("--------------------")
+board.cmd_reset()
 
-board.cmd_status()
-
+print("--------------------")
 data = board.cmd_adc()
 print("ADC: %04x" % data)
 
+print("--------------------")
 n = 6
 data = board.cmd_adcdma(n)
 print("ADCDMA %d: " % n + "".join(("%04x " % _) for _ in data))
 
+print("--------------------")
 board.disconnect()

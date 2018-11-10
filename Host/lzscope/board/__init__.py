@@ -78,28 +78,28 @@ class Board(object):
 
 
 
-    def cmd_status(self):
+    def cmd_reset(self):
         """
-        Send 'STATUS' command to the board and wait for an answer.
+        Send 'RESET' command to the board and wait for an answer.
 
         Returns
         -------
         str
-            Status string.
+            'OK'.
         """
 
-        self.logger.debug("cmd_status: ...")
+        self.logger.debug("cmd_reset: ...")
 
         try:
-            self.write("STATUS\0")
-            status = self.serial.read(3).decode()
+            self.write("RESET\0")
+            res = self.serial.read(3).decode()
         except serial.SerialException as e:
-            self.logger.error("cmd_status:", e)
+            self.logger.error("cmd_reset:", e)
             raise e
 
-        self.logger.debug("cmd_status: '%s'" % status)
+        self.logger.debug("cmd_reset: '%s'" % res)
 
-        return status
+        return res
 
 
 
@@ -151,7 +151,7 @@ class Board(object):
             self.write("GET\0")
             raw = self.serial.read(n * np.uint16(0).itemsize)
             data = np.frombuffer(raw, np.dtype(np.uint16), count=n)
-            self.cmd_stop()
+            self.cmd_reset()
         except serial.SerialException as e:
             self.logger.error("cmd_adcdma:", e)
             raise e
@@ -159,21 +159,3 @@ class Board(object):
         self.logger.debug("cmd_adcdma: %d samples ok" % n)
 
         return data
-
-
-
-    def cmd_stop(self):
-        """
-        Send 'STOP' command to the board and wait for an answer.
-        """
-
-        self.logger.debug("cmd_stop: ...")
-
-        try:
-            self.write("STOP\0")
-            status = self.serial.read(3).decode()
-        except serial.SerialException as e:
-            self.logger.error("cmd_stop:", e)
-            raise e
-
-        self.logger.debug("cmd_stop: '%s'" % status)

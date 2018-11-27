@@ -36,7 +36,7 @@ class Board(object):
         self.logger.debug("connect: ...")
 
         try:
-            self.serial = serial.Serial(**self.serial_kwargs)
+            self.serial = serial.serial_for_url(**self.serial_kwargs)
             #time.sleep(2)
             self.serial.reset_input_buffer()
             self.serial.reset_output_buffer()
@@ -80,12 +80,12 @@ class Board(object):
 
     def cmd_reset(self):
         """
-        Send 'RESET' command to the board and wait for an answer.
+        Send 'RESET\0' command to the board and wait for an answer.
 
         Returns
         -------
         str
-            'OK'.
+            b'OK\0'.
         """
 
         self.logger.debug("cmd_reset: ...")
@@ -105,7 +105,7 @@ class Board(object):
 
     def cmd_adc(self):
         """
-        Send 'ADC' command to the board and wait for an answer.
+        Send 'ADC\0' command to the board and wait for an answer.
 
         Returns
         -------
@@ -131,7 +131,7 @@ class Board(object):
 
     def cmd_adcdma(self, n):
         """
-        Send 'ADCDMA <n>' command to the board and wait for an answer.
+        Send 'ADCDMA <n>\0' command to the board and wait for an answer.
 
         Parameters
         ----------

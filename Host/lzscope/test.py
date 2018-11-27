@@ -14,7 +14,7 @@ logger_console_handler = logging.StreamHandler()
 logger_console_handler.setFormatter(logger_formatter)
 logger.addHandler(logger_console_handler)
 
-board = board.Board(port="/dev/ttyACM0")
+board = board.Board(url="hwgrep://0483:5740")
 
 board.connect()
 

@@ -5,7 +5,7 @@ import serial
 
 
 
-s = serial.Serial('/dev/ttyACM0')
+s = serial.serial_for_url(url="hwgrep://0483:5740")
 
 while True:
     print(s.readline())

@@ -7,7 +7,6 @@
   */
 
 #include "usbd_cdc_if.h"
-#include "adc.h"
 
 #include "main.h"
 #include "ringbuffer.h"
@@ -63,13 +62,13 @@ volatile union
  * Make a single ADC measurement
  */
 
-void Worker_ExecuteCommand_ADC(char *CmdArg1, char *CmdArg2, char *CmdArg3)
+void Worker_ExecuteCommand_ADC(ADC_HandleTypeDef *hadc)
 {
   /* Measure */
-  HAL_ADC_Start(&hadc1);
-  HAL_ADC_PollForConversion(&hadc1, 100);
-  DMABuffer.u16[0] = HAL_ADC_GetValue(&hadc1);
-  HAL_ADC_Stop(&hadc1);
+  HAL_ADC_Start(hadc);
+  HAL_ADC_PollForConversion(hadc, 100);
+  DMABuffer.u16[0] = HAL_ADC_GetValue(hadc);
+  HAL_ADC_Stop(hadc);
 
   /* Transmit */
   Transmit((char *) &(DMABuffer.u16[0]), 4);
@@ -92,17 +91,12 @@ uint32_t ADCDMA_DataBufferHalfLength;
 
 
 
-void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
+void Worker_ExecuteCommand_ADCDMA(ADC_HandleTypeDef *hadc, char *CmdArg1)
 {
-  /*
-   * Init
-   */
-
+  /* Init */
   ADCDMA_DataIsReady = false;
-
   sscanf(CmdArg1, "%li", &ADCDMA_DataBufferHalfLength);
-
-  HAL_ADC_Start_DMA(&hadc1, (uint32_t *) (DMABuffer.u16), 2*ADCDMA_DataBufferHalfLength);
+  HAL_ADC_Start_DMA(hadc, (uint32_t *) (DMABuffer.u16), 2*ADCDMA_DataBufferHalfLength);
 
 
   /*
@@ -151,11 +145,8 @@ void Worker_ExecuteCommand_ADCDMA(char *CmdArg1, char *CmdArg2, char *CmdArg3)
   }
 
 
-  /*
-   * Done
-   */
-
-  HAL_ADC_Stop_DMA(&hadc1);
+  /* Done */
+  HAL_ADC_Stop_DMA(hadc);
 }
 
 

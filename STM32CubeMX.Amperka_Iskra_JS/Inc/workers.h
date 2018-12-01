@@ -17,9 +17,9 @@
 
 uint8_t Transmit(char*, uint16_t);
 
-void Worker_ExecuteCommand_ADC(char*, char*, char*);
+void Worker_ExecuteCommand_ADC(ADC_HandleTypeDef*);
 
-void Worker_ExecuteCommand_ADCDMA(char*, char*, char*);
+void Worker_ExecuteCommand_ADCDMA(ADC_HandleTypeDef*, char*);
 void HAL_ADC_ConvHalfCpltCallback(ADC_HandleTypeDef*);
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef*);
 

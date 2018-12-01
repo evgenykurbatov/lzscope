@@ -80,12 +80,12 @@ class Board(object):
 
     def cmd_reset(self):
         """
-        Send 'RESET\0' command to the board and wait for an answer.
+        Send ``RESET\0`` command to the board and wait for an answer.
 
         Returns
         -------
         str
-            b'OK\0'.
+            b``OK\0``.
         """
 
         self.logger.debug("cmd_reset: ...")
@@ -103,9 +103,30 @@ class Board(object):
 
 
 
-    def cmd_adc(self):
+    def cmd_adc1(self):
         """
-        Send 'ADC\0' command to the board and wait for an answer.
+        See `cmd_adc_p`.
+        """
+        return self.cmd_adc_p(1)
+
+
+
+    def cmd_adc2(self):
+        """
+        See `cmd_adc_p`.
+        """
+        return self.cmd_adc_p(2)
+
+
+
+    def cmd_adc_p(self, p):
+        """
+        Send ``ADC<p>\0`` command to the board and wait for an answer.
+
+        Parameters
+        ----------
+        p : integer
+            Port number.
 
         Returns
         -------
@@ -113,28 +134,46 @@ class Board(object):
             Integer with 16-bit meaning part.
         """
 
-        self.logger.debug("cmd_adc: 'ADC'")
+        self.logger.debug("cmd_adc_p: 'ADC%d'" % p)
 
         try:
-            self.write("ADC\0")
+            self.write("ADC%d\0" % p)
             raw = self.serial.read(4)
             data = np.frombuffer(raw, np.dtype(np.uint16), count=1)
         except serial.SerialException as e:
-            self.logger.error("cmd_adc:", e)
+            self.logger.error("cmd_adc_p:", e)
             raise e
 
-        self.logger.debug("cmd_adc: '%04x'" % data[0])
+        self.logger.debug("cmd_adc_p: '%04x'" % data[0])
 
         return data[0]
 
 
 
-    def cmd_adcdma(self, n):
+    def cmd_adc1dma(self, n):
         """
-        Send 'ADCDMA <n>\0' command to the board and wait for an answer.
+        See `cmd_adc_p`.
+        """
+        return self.cmd_adcdma_p(1, n)
+
+
+
+    def cmd_adc2dma(self, n):
+        """
+        See `cmd_adc_p`.
+        """
+        return self.cmd_adcdma_p(2, n)
+
+
+
+    def cmd_adcdma_p(self, p, n):
+        """
+        Send ``ADC<p>DMA <n>\0`` command to the board and wait for an answer.
 
         Parameters
         ----------
+        p : integer
+            Port number.
         n : integer
             Number of samples to read sequentally.
 
@@ -144,18 +183,18 @@ class Board(object):
             Integer with 16-bit meaning part.
         """
 
-        self.logger.debug("cmd_adcdma: 'ADCDMA %d'" % n)
+        self.logger.debug("cmd_adcdma: 'ADC%dDMA %d'" % (p, n))
 
         try:
-            self.write("ADCDMA %d\0" % n)
+            self.write("ADC%dDMA %d\0" % (p, n))
             self.write("GET\0")
             raw = self.serial.read(n * np.uint16(0).itemsize)
             data = np.frombuffer(raw, np.dtype(np.uint16), count=n)
             self.cmd_reset()
         except serial.SerialException as e:
-            self.logger.error("cmd_adcdma:", e)
+            self.logger.error("cmd_adcdma_p:", e)
             raise e
 
-        self.logger.debug("cmd_adcdma: %d samples ok" % n)
+        self.logger.debug("cmd_adcdma_p: %d samples ok" % n)
 
         return data

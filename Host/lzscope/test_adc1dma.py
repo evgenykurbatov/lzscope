@@ -22,13 +22,13 @@ print("--------------------")
 board.cmd_reset()
 
 print("--------------------")
-data = board.cmd_adc()
-print("ADC: %04x" % data)
+data = board.cmd_adc1()
+print("ADC1: %04x" % data)
 
 print("--------------------")
 n = 6
-data = board.cmd_adcdma(n)
-print("ADCDMA %d: " % n + "".join(("%04x " % _) for _ in data))
+data = board.cmd_adc1dma(n)
+print("ADC1DMA %d: " % n + "".join(("%04x " % _) for _ in data))
 
 print("--------------------")
 board.disconnect()

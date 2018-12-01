@@ -30,7 +30,7 @@ dump = np.nan * np.zeros((m, n), dtype=np.uint16)
 
 t1 = time.time()
 for i in range(m):
-    dump[i,:] = board.cmd_adcdma(n)
+    dump[i,:] = board.cmd_adc1dma(n)
 t2 = time.time()
 print("done in %.2e sec, rate is %.2f bps\n" % ((t2-t1), m*n*np.uint16(0).itemsize/(t2-t1)))
 
